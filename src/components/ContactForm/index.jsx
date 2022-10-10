@@ -1,59 +1,48 @@
 import { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { getContact, addContact } from '../../redux/slice';
 import { nanoid } from 'nanoid';
 import './ContactForm.module.css';
+import { useAddContactMutation, useGetContactsQuery } from 'api/contacts';
 
 const ContactForm = () => {
   const [name, setName] = useState('');
-  const [number, setNumber] = useState('');
-  const dispatch = useDispatch();
-  const contacts = useSelector(getContact);
+  const [phone, setPhone] = useState('');
 
-  const handelChange = event => {
-    const { value, name } = event.currentTarget;
-    switch (name) {
-      case 'name':
-        setName(value);
-        break;
-      case 'number':
-        setNumber(value);
-        break;
-      default:
-        break;
-    }
-  };
-
-  const handelSubmit = event => {
-    event.preventDefault();
-    const contact = {
-      id: nanoid(),
-      name,
-      number,
-    };
-    const enterContacts = contacts.some(
-      contact =>
-        (contact.name === name.toLowerCase() && contact.number === number) ||
-        contact.number === number
-    );
-    enterContacts
-      ? alert(`${name} or ${number} is already in contacts`)
-      : dispatch(addContact(contact));
-    resetForm();
-  };
+  const { data: contacts } = useGetContactsQuery();
+  const [addContact, { isLoading }] = useAddContactMutation();
 
   const resetForm = () => {
     setName('');
-    setNumber('');
+    setPhone('');
+  };
+
+  const handleSubmit = event => {
+    event.preventDefault();
+
+    const contact = {
+      id: nanoid(),
+      name,
+      phone,
+    };
+    const isContactAlreadyExist = contacts?.some(
+      contact => contact.phone === phone || contact.name === name
+    );
+
+    if (isContactAlreadyExist) {
+      alert(`${name} or ${phone} is already in contacts`);
+      return;
+    }
+
+    addContact(contact);
+    resetForm();
   };
 
   return (
-    <form onSubmit={handelSubmit}>
+    <form onSubmit={handleSubmit}>
       <input
         type="text"
         name="name"
         value={name}
-        onChange={handelChange}
+        onChange={e => setName(e.target.value)}
         pattern="^[a-zA-Zа-яА-Я]+(([' -][a-zA-Zа-яА-Я ])?[a-zA-Zа-яА-Я]*)*$"
         title="Name may contain only letters, apostrophe, dash and spaces. For example Adrian, Jacob Mercer, Charles de Batz de Castelmore d'Artagnan"
         required
@@ -63,15 +52,17 @@ const ContactForm = () => {
       <input
         type="tel"
         name="number"
-        value={number}
-        onChange={handelChange}
+        value={phone}
+        onChange={e => setPhone(e.target.value)}
         pattern="\+?\d{1,4}?[-.\s]?\(?\d{1,3}?\)?[-.\s]?\d{1,4}[-.\s]?\d{1,4}[-.\s]?\d{1,9}"
         title="Phone number must be digits and can contain spaces, dashes, parentheses and can start with +"
         required
-        placeholder="Number"
+        placeholder="Phone"
       />
 
-      <button type="submit">Add contact</button>
+      <button type="submit" disabled={isLoading}>
+        Add contact
+      </button>
     </form>
   );
 };

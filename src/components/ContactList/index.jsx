@@ -1,35 +1,35 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { getContact, deleteContact, getFilter } from '../../redux/slice';
+import { useDeleteContactMutation, useGetContactsQuery } from 'api/contacts';
+import { useSearchContext } from 'components/SearchProvider';
+import { useMemo } from 'react';
 import './ContactList.module.css';
 
 const ContactList = () => {
-  const dispatch = useDispatch();
-  const contacts = useSelector(getContact);
-  const filter = useSelector(getFilter);
+  const { search } = useSearchContext();
+  const { data: contacts } = useGetContactsQuery();
+  const [deleteContact] = useDeleteContactMutation();
 
-  const findContacts = () => {
-    const normalizedFilter = filter.toLowerCase();
-    return contacts.filter(contact =>
-      contact.name.toLowerCase().includes(normalizedFilter)
-    );
-  };
+  const filteredContacts = useMemo(
+    () =>
+      (search
+        ? contacts?.filter(contact => contact.name === search)
+        : contacts) ?? [],
+    [search, contacts]
+  );
 
-  const filteredContacts = findContacts();
   return (
     <ul>
-      {filteredContacts.map(({ id, name, number }) => {
-        return (
-          <li key={id}>
-            <p>
-              {name}: {number}
-            </p>
-            <button type="button" onClick={() => dispatch(deleteContact(id))}>
-              Delete
-            </button>
-          </li>
-        );
-      })}
+      {filteredContacts.map(({ id, name, phone }) => (
+        <li key={id}>
+          <p>
+            {name}: {phone}
+          </p>
+          <button type="button" onClick={() => deleteContact(id)}>
+            Delete
+          </button>
+        </li>
+      ))}
     </ul>
   );
 };
+
 export default ContactList;

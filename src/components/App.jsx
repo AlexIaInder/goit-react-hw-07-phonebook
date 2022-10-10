@@ -1,11 +1,11 @@
 import './App.module.css';
-import { nanoid } from 'nanoid';
 import ContactForm from './ContactForm';
 import Filter from './Filter';
 import ContactList from './ContactList';
+import SearchProvider from './SearchProvider';
 
-export const App = () => {
-  return (
+export const App = () => (
+  <SearchProvider>
     <section>
       <h1>Phonebook</h1>
       <ContactForm />
@@ -13,5 +13,5 @@ export const App = () => {
       <Filter />
       <ContactList />
     </section>
-  );
-};
+  </SearchProvider>
+);

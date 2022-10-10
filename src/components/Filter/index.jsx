@@ -1,15 +1,14 @@
-import { useDispatch, useSelector } from 'react-redux';
-import { serchFilter } from '../../redux/slice';
 import './Filter.module.css';
+import { useSearchContext } from '../SearchProvider';
 
 const Filter = () => {
-  const dispatch = useDispatch();
+  const { setSearch } = useSearchContext();
 
   return (
     <input
       type="text"
       name="filter"
-      onChange={event => dispatch(serchFilter(event.target.value))}
+      onChange={event => setSearch(event.target.value)}
       placeholder="Find contacts by name"
     />
   );
