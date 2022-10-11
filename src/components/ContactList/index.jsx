@@ -11,7 +11,7 @@ const ContactList = () => {
   const filteredContacts = useMemo(
     () =>
       (search
-        ? contacts?.filter(contact => contact.name === search)
+        ? contacts?.filter(contact => contact.name.includes(search))
         : contacts) ?? [],
     [search, contacts]
   );
