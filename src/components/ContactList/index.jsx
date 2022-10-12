@@ -1,17 +1,20 @@
 import { useDeleteContactMutation, useGetContactsQuery } from 'api/contacts';
-import { useSearchContext } from 'components/SearchProvider';
+import { useSelector } from 'react-redux';
 import { useMemo } from 'react';
 import './ContactList.module.css';
+import { getFilter } from 'redux/filterSlice';
 
 const ContactList = () => {
-  const { search } = useSearchContext();
+  const search = useSelector(getFilter);
   const { data: contacts } = useGetContactsQuery();
   const [deleteContact] = useDeleteContactMutation();
 
   const filteredContacts = useMemo(
     () =>
       (search
-        ? contacts?.filter(contact => contact.name.includes(search))
+        ? contacts?.filter(contact =>
+            contact.name.toLowerCase().includes(search.toLowerCase())
+          )
         : contacts) ?? [],
     [search, contacts]
   );
