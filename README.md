@@ -1,1 +1,1 @@
-goit-react-hw-06-phonebook working with Redux Toolkit
+goit-react-hw-07-phonebook working with Redux Toolkit
